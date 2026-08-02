@@ -2,21 +2,77 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-# Load the trained model
+# ==========================================
+# PAGE CONFIGURATION
+# ==========================================
+st.set_page_config(
+    page_title="EstateIQ",
+    page_icon="🏠",
+    layout="wide"
+)
+
+# ==========================================
+# LOAD TRAINED MODEL
+# ==========================================
 model = joblib.load("models/linear_regression.pkl")
 
-# App title
-st.title("EstateIQ - House Price Prediction")
+# ==========================================
+# MAIN TITLE
+# ==========================================
+st.title("🏠 EstateIQ")
+st.subheader("AI-Powered House Price Prediction")
 
-# User inputs
-total_sqft = st.number_input("Total Square Feet", min_value=100)
-bath = st.number_input("Number of Bathrooms", min_value=1)
-balcony = st.number_input("Number of Balconies", min_value=0)
-is_ready_to_move = st.selectbox("Ready to Move?", [0, 1])
-bhk = st.number_input("BHK", min_value=1)
+st.info(
+    "Welcome to EstateIQ! Enter the property details from the sidebar and click Predict Price."
+)
 
-if st.button("Predict Price"):
-    data = pd.DataFrame({
+# ==========================================
+# SIDEBAR
+# ==========================================
+st.sidebar.title("🏡 Property Details")
+
+total_sqft = st.sidebar.number_input(
+    "Total Square Feet",
+    min_value=300,
+    max_value=10000,
+    value=1200
+)
+
+bath = st.sidebar.number_input(
+    "Bathrooms",
+    min_value=1,
+    max_value=10,
+    value=2
+)
+
+balcony = st.sidebar.number_input(
+    "Balconies",
+    min_value=0,
+    max_value=5,
+    value=1
+)
+
+ready = st.sidebar.selectbox(
+    "Ready to Move",
+    ["Yes", "No"]
+)
+
+bhk = st.sidebar.number_input(
+    "BHK",
+    min_value=1,
+    max_value=10,
+    value=2
+)
+
+# Convert Yes/No into 1/0
+is_ready_to_move = 1 if ready == "Yes" else 0
+
+# ==========================================
+# PREDICTION
+# ==========================================
+if st.button("🔍 Predict Price"):
+
+    input_data = pd.DataFrame({
         "total_sqft": [total_sqft],
         "bath": [bath],
         "balcony": [balcony],
@@ -24,6 +80,68 @@ if st.button("Predict Price"):
         "BHK": [bhk]
     })
 
-    prediction = model.predict(data)
+    prediction = model.predict(input_data)
 
-    st.success(f"Estimated Price: ₹ {prediction[0]:.2f} Lakhs")
+    price = round(prediction[0], 2)
+
+    st.success("Prediction Completed Successfully!")
+
+    st.metric(
+        label="🏠 Estimated House Price",
+        value=f"₹ {price:.2f} Lakhs"
+    )
+
+    st.balloons()
+
+# ==========================================
+# ABOUT SECTION
+# ==========================================
+st.markdown("---")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.header("📌 About EstateIQ")
+
+    st.write("""
+EstateIQ is an AI-powered House Price Prediction System.
+
+It predicts Bengaluru house prices using Machine Learning algorithms.
+""")
+
+with col2:
+    st.header("🛠 Technologies Used")
+
+    st.write("""
+- Python
+- Pandas
+- NumPy
+- Scikit-learn
+- Streamlit
+- Joblib
+""")
+
+# ==========================================
+# FEATURES
+# ==========================================
+st.markdown("---")
+
+st.header("✨ Features")
+
+st.markdown("""
+- 🏠 House Price Prediction
+- 📐 Total Square Feet
+- 🚿 Bathrooms
+- 🌇 Balconies
+- 🏡 Ready to Move
+- 🛏 BHK Prediction
+- ⚡ Fast Prediction
+- 🤖 Machine Learning Model
+""")
+
+# ==========================================
+# FOOTER
+# ==========================================
+st.markdown("---")
+
+st.caption("© 2026 EstateIQ | Developed by Aarohi Singh")
